@@ -15,26 +15,26 @@ from datetime import datetime
 # Ordner, die komplett ignoriert werden (inkl. Inhalt)
 IGNORE_DIRS = {
     '.git', '.idea', '.vscode', 'node_modules', 'target', 'build',
-    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out'
+    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn'
 }
 
 # Dateinamen oder Endungen, die ignoriert werden sollen
 IGNORE_FILES = {
     '.DS_Store', 'package-lock.json', 'yarn.lock', 'gradle-wrapper.jar',
-    '.project', '.classpath', '.gguf'
+    '.project', '.classpath', '.gguf', 'mvnw', '.cmd', '.gitignore', '.properties'
 }
 
 # Binäre Endungen (Dateien, die wir nicht im Text-Context haben wollen)
-BINARY_EXTENSIONS = (
+IGNORE_BINARY_EXTENSIONS = (
     '.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.so',
-    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf', '.sql'
+    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf'
 )
 
 
 def should_ignore(name, is_dir=False):
     if is_dir:
         return name in IGNORE_DIRS
-    return name in IGNORE_FILES or name.lower().endswith(BINARY_EXTENSIONS)
+    return name in IGNORE_FILES or name.lower().endswith(IGNORE_BINARY_EXTENSIONS)
 
 
 def get_project_structure(start_path):

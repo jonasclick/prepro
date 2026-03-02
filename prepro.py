@@ -21,13 +21,13 @@ IGNORE_DIRS = {
 # Dateinamen oder Endungen, die ignoriert werden sollen
 IGNORE_FILES = {
     '.DS_Store', 'package-lock.json', 'yarn.lock', 'gradle-wrapper.jar',
-    '.project', '.classpath', '.gguf', 'mvnw',
+    '.project', '.classpath', '.gguf', 'mvnw', '.cmd', '.gitignore', '.properties'
 }
 
 # Binäre Endungen (Dateien, die wir nicht im Text-Context haben wollen)
 IGNORE_BINARY_EXTENSIONS = (
     '.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.so',
-    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf', '.cmd', '.gitignore'
+    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf'
 )
 
 
