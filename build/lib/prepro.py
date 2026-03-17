@@ -15,7 +15,7 @@ from datetime import datetime
 # Ordner, die komplett ignoriert werden (inkl. Inhalt)
 IGNORE_DIRS = {
     '.git', '.idea', '.vscode', 'node_modules', 'target', 'build',
-    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn'
+    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn', 'javadoc'
 }
 
 # Dateinamen oder Endungen, die ignoriert werden sollen
