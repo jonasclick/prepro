@@ -12,76 +12,69 @@ from datetime import datetime
 # Packt den gesamten Projektinhalt in eine Textdatei für LLMs.
 
 # --- KONFIGURATION ---
-# Ordner, die komplett ignoriert werden (inkl. Inhalt)
+# Ordner, die komplett ignoriert werden (z.B. Library-Leichen oder Git-Daten)
 IGNORE_DIRS = {
-    '.git', '.idea', '.vscode', 'node_modules', 'target', 'build',
-    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn', 'javadoc'
+    '.git', '.idea', '.vscode', 'node_modules', 'dist', 'build', 'out', 'venv', '__pycache__', 'assets'
 }
 
-# Dateinamen oder Endungen, die ignoriert werden sollen
-IGNORE_FILES = {
-    '.DS_Store', 'package-lock.json', 'yarn.lock', 'gradle-wrapper.jar',
-    '.project', '.classpath', '.gguf', 'mvnw', '.cmd', '.gitignore', '.properties'
-}
-
-# Binäre Endungen (Dateien, die wir nicht im Text-Context haben wollen)
-IGNORE_BINARY_EXTENSIONS = (
-    '.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.so',
-    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf'
-)
+# NUR diese Dateiendungen werden in den Context aufgenommen
+ALLOWED_EXTENSIONS = ('.html', '.css', '.js')
 
 
-def should_ignore(name, is_dir=False):
-    if is_dir:
-        return name in IGNORE_DIRS
-    return name in IGNORE_FILES or name.lower().endswith(IGNORE_BINARY_EXTENSIONS)
+def is_web_file(filename):
+    """Prüft, ob die Datei eine erlaubte Web-Endung hat."""
+    return filename.lower().endswith(ALLOWED_EXTENSIONS)
 
 
 def get_project_structure(start_path):
     structure = []
     for root, dirs, files in os.walk(start_path):
-        # In-place Filterung der Verzeichnisse
-        dirs[:] = [d for d in dirs if not should_ignore(d, is_dir=True)]
+        # Filtert Ignorierte Ordner aus
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
         level = os.path.relpath(root, start_path).count(os.sep)
-        # Wenn wir im Startordner sind, nehmen wir den tatsächlichen Ordnernamen
         folder_name = os.path.basename(os.path.abspath(root))
 
         indent = ' ' * 4 * level
-        structure.append(f"{indent}{folder_name}/")
 
-        sub_indent = ' ' * 4 * (level + 1)
-        for f in files:
-            if not should_ignore(f):
+        # Wir zeigen im Strukturbaum nur Dateien an, die auch relevant sind
+        relevant_files = [f for f in files if is_web_file(f)]
+
+        # Ordner nur anzeigen, wenn er relevant ist oder relevante Dateien enthält
+        if relevant_files or level == 0:
+            structure.append(f"{indent}{folder_name}/")
+            sub_indent = ' ' * 4 * (level + 1)
+            for f in relevant_files:
                 structure.append(f"{sub_indent}{f}")
+
     return "\n".join(structure)
 
 
 def main():
-    start_path = os.getcwd()  # Startet immer im aktuellen Verzeichnis
+    start_path = os.getcwd()
     project_name = os.path.basename(start_path)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = f"CONTEXT_{project_name}_{timestamp}.txt"
+    filename = f"WEB_CONTEXT_{project_name}_{timestamp}.txt"
     download_path = os.path.join(os.path.expanduser("~"), "Downloads", filename)
 
-    print(f"📂 Analysiere Projekt: {project_name}...")
-    print(f"📍 Pfad: {start_path}")
+    print(f"🌐 Analysiere Web-Projekt: {project_name}...")
+    print(f"🎯 Fokus: {', '.join(ALLOWED_EXTENSIONS)}")
 
     output = []
-    output.append(f"=== PROJECT CONTEXT: {project_name} ===")
+    output.append(f"=== WEB PROJECT CONTEXT: {project_name} ===")
     output.append(f"Generated: {timestamp}")
-    output.append(f"Root Directory: {start_path}")
-    output.append("\n--- DIRECTORY STRUCTURE ---")
+    output.append(f"Allowed Extensions: {', '.join(ALLOWED_EXTENSIONS)}")
+    output.append("\n--- RELEVANT DIRECTORY STRUCTURE ---")
     output.append(get_project_structure(start_path))
     output.append("\n" + "=" * 50 + "\n")
 
     file_count = 0
     for root, dirs, files in os.walk(start_path):
-        dirs[:] = [d for d in dirs if not should_ignore(d, is_dir=True)]
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
 
         for file in files:
-            if not should_ignore(file):
+            if is_web_file(file):
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, start_path)
 
@@ -100,7 +93,7 @@ def main():
     with open(download_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(output))
 
-    print(f"✅ Erfolg! {file_count} Dateien zusammengefasst.")
+    print(f"✅ Erfolg! {file_count} Web-Dateien zusammengefasst.")
     print(f"📄 Datei gespeichert unter: {download_path}")
 
 

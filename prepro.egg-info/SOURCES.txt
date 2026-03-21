@@ -1,4 +1,4 @@
-prepro.py
+preprof.py
 pyproject.toml
 prepro.egg-info/PKG-INFO
 prepro.egg-info/SOURCES.txt
