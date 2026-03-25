@@ -12,69 +12,70 @@ from datetime import datetime
 # Packt den gesamten Projektinhalt in eine Textdatei für LLMs.
 
 # --- KONFIGURATION ---
-# Ordner, die komplett ignoriert werden (z.B. Library-Leichen oder Git-Daten)
+# Ordner, die komplett ignoriert werden (inkl. Inhalt)
 IGNORE_DIRS = {
-    '.git', '.idea', '.vscode', 'node_modules', 'dist', 'build', 'out', 'venv', '__pycache__', 'assets'
+    '.git', '.idea', '.vscode', 'node_modules', 'target', 'build',
+    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn', 'javadoc', 'lib'
 }
 
-# NUR diese Dateiendungen werden in den Context aufgenommen
-ALLOWED_EXTENSIONS = ('.html', '.css', '.js')
+# Dateiendungen, die inkludiert werden sollen
+INCLUDE_EXTENSIONS = ('.html', '.css', '.js')
 
 
-def is_web_file(filename):
-    """Prüft, ob die Datei eine erlaubte Web-Endung hat."""
-    return filename.lower().endswith(ALLOWED_EXTENSIONS)
+def is_ignored_dir(name):
+    return name in IGNORE_DIRS
+
+
+def should_include_content(name):
+    return name.lower().endswith(INCLUDE_EXTENSIONS)
 
 
 def get_project_structure(start_path):
     structure = []
     for root, dirs, files in os.walk(start_path):
-        # Filtert Ignorierte Ordner aus
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        # In-place Filterung der Verzeichnisse
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
 
         level = os.path.relpath(root, start_path).count(os.sep)
+        # Wenn wir im Startordner sind, nehmen wir den tatsächlichen Ordnernamen
         folder_name = os.path.basename(os.path.abspath(root))
 
         indent = ' ' * 4 * level
+        structure.append(f"{indent}{folder_name}/")
 
-        # Wir zeigen im Strukturbaum nur Dateien an, die auch relevant sind
-        relevant_files = [f for f in files if is_web_file(f)]
-
-        # Ordner nur anzeigen, wenn er relevant ist oder relevante Dateien enthält
-        if relevant_files or level == 0:
-            structure.append(f"{indent}{folder_name}/")
-            sub_indent = ' ' * 4 * (level + 1)
-            for f in relevant_files:
-                structure.append(f"{sub_indent}{f}")
-
+        sub_indent = ' ' * 4 * (level + 1)
+        for f in files:
+            # In der Übersicht zeigen wir alle Dateien an
+            structure.append(f"{sub_indent}{f}")
     return "\n".join(structure)
 
 
 def main():
-    start_path = os.getcwd()
+    start_path = os.getcwd()  # Startet immer im aktuellen Verzeichnis
     project_name = os.path.basename(start_path)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = f"WEB_CONTEXT_{project_name}_{timestamp}.txt"
+    filename = f"CONTEXT_{project_name}_{timestamp}.txt"
     download_path = os.path.join(os.path.expanduser("~"), "Downloads", filename)
 
-    print(f"🌐 Analysiere Web-Projekt: {project_name}...")
-    print(f"🎯 Fokus: {', '.join(ALLOWED_EXTENSIONS)}")
+    print(f"📂 Analysiere Projekt: {project_name}...")
+    print(f"📍 Pfad: {start_path}")
+    print(f"🔍 Inkludiere Inhalte für: {', '.join(INCLUDE_EXTENSIONS)}")
 
     output = []
-    output.append(f"=== WEB PROJECT CONTEXT: {project_name} ===")
+    output.append(f"=== PROJECT CONTEXT: {project_name} ===")
     output.append(f"Generated: {timestamp}")
-    output.append(f"Allowed Extensions: {', '.join(ALLOWED_EXTENSIONS)}")
-    output.append("\n--- RELEVANT DIRECTORY STRUCTURE ---")
+    output.append(f"Root Directory: {start_path}")
+    output.append("\n--- DIRECTORY STRUCTURE ---")
     output.append(get_project_structure(start_path))
     output.append("\n" + "=" * 50 + "\n")
 
     file_count = 0
     for root, dirs, files in os.walk(start_path):
-        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
 
         for file in files:
-            if is_web_file(file):
+            if should_include_content(file):
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, start_path)
 
@@ -93,7 +94,7 @@ def main():
     with open(download_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(output))
 
-    print(f"✅ Erfolg! {file_count} Web-Dateien zusammengefasst.")
+    print(f"✅ Erfolg! {file_count} Dateien inkludiert.")
     print(f"📄 Datei gespeichert unter: {download_path}")
 
 
