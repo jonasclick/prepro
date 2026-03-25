@@ -15,33 +15,26 @@ from datetime import datetime
 # Ordner, die komplett ignoriert werden (inkl. Inhalt)
 IGNORE_DIRS = {
     '.git', '.idea', '.vscode', 'node_modules', 'target', 'build',
-    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn', 'javadoc'
+    'bin', '__pycache__', 'venv', '.gradle', '.settings', 'dist', 'out', '.mvn', 'javadoc', 'lib'
 }
 
-# Dateinamen oder Endungen, die ignoriert werden sollen
-IGNORE_FILES = {
-    '.DS_Store', 'package-lock.json', 'yarn.lock', 'gradle-wrapper.jar',
-    '.project', '.classpath', '.gguf', 'mvnw', '.cmd', '.gitignore', '.properties', '.dump'
-}
-
-# Binäre Endungen (Dateien, die wir nicht im Text-Context haben wollen)
-IGNORE_BINARY_EXTENSIONS = (
-    '.png', '.jpg', '.jpeg', '.gif', '.pdf', '.exe', '.dll', '.so',
-    '.zip', '.tar', '.gz', '.mp4', '.mp3', '.class', '.pyc', '.ico', '.gguf', '.dump'
-)
+# Dateiendungen, die inkludiert werden sollen
+INCLUDE_EXTENSIONS = ('.java', '.puml')
 
 
-def should_ignore(name, is_dir=False):
-    if is_dir:
-        return name in IGNORE_DIRS
-    return name in IGNORE_FILES or name.lower().endswith(IGNORE_BINARY_EXTENSIONS)
+def is_ignored_dir(name):
+    return name in IGNORE_DIRS
+
+
+def should_include_content(name):
+    return name.lower().endswith(INCLUDE_EXTENSIONS)
 
 
 def get_project_structure(start_path):
     structure = []
     for root, dirs, files in os.walk(start_path):
         # In-place Filterung der Verzeichnisse
-        dirs[:] = [d for d in dirs if not should_ignore(d, is_dir=True)]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
 
         level = os.path.relpath(root, start_path).count(os.sep)
         # Wenn wir im Startordner sind, nehmen wir den tatsächlichen Ordnernamen
@@ -52,8 +45,8 @@ def get_project_structure(start_path):
 
         sub_indent = ' ' * 4 * (level + 1)
         for f in files:
-            if not should_ignore(f):
-                structure.append(f"{sub_indent}{f}")
+            # In der Übersicht zeigen wir alle Dateien an
+            structure.append(f"{sub_indent}{f}")
     return "\n".join(structure)
 
 
@@ -67,6 +60,7 @@ def main():
 
     print(f"📂 Analysiere Projekt: {project_name}...")
     print(f"📍 Pfad: {start_path}")
+    print(f"🔍 Inkludiere Inhalte für: {', '.join(INCLUDE_EXTENSIONS)}")
 
     output = []
     output.append(f"=== PROJECT CONTEXT: {project_name} ===")
@@ -78,10 +72,10 @@ def main():
 
     file_count = 0
     for root, dirs, files in os.walk(start_path):
-        dirs[:] = [d for d in dirs if not should_ignore(d, is_dir=True)]
+        dirs[:] = [d for d in dirs if not is_ignored_dir(d)]
 
         for file in files:
-            if not should_ignore(file):
+            if should_include_content(file):
                 file_path = os.path.join(root, file)
                 rel_path = os.path.relpath(file_path, start_path)
 
@@ -100,7 +94,7 @@ def main():
     with open(download_path, 'w', encoding='utf-8') as f:
         f.write("\n".join(output))
 
-    print(f"✅ Erfolg! {file_count} Dateien zusammengefasst.")
+    print(f"✅ Erfolg! {file_count} Dateien inkludiert.")
     print(f"📄 Datei gespeichert unter: {download_path}")
 
 
