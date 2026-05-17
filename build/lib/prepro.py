@@ -19,7 +19,7 @@ IGNORE_DIRS = {
 }
 
 # Dateiendungen, die inkludiert werden sollen
-INCLUDE_EXTENSIONS = ('.java', '.puml')
+INCLUDE_EXTENSIONS = ('.java', '.puml', '.properties')
 
 
 def is_ignored_dir(name):

@@ -21,13 +21,16 @@ IGNORE_DIRS = {
 # Dateiendungen, die inkludiert werden sollen
 INCLUDE_EXTENSIONS = ('.java', '.puml')
 
+# Bestimmte Dateien, die immer inkludiert werden sollen
+INCLUDE_FILES = {'build.gradle', 'pom.xml', 'settings.gradle', 'Dockerfile', 'docker-compose.yaml'}
+
 
 def is_ignored_dir(name):
     return name in IGNORE_DIRS
 
 
 def should_include_content(name):
-    return name.lower().endswith(INCLUDE_EXTENSIONS)
+    return name.lower().endswith(INCLUDE_EXTENSIONS) or name in INCLUDE_FILES
 
 
 def get_project_structure(start_path):
@@ -61,6 +64,8 @@ def main():
     print(f"📂 Analysiere Projekt: {project_name}...")
     print(f"📍 Pfad: {start_path}")
     print(f"🔍 Inkludiere Inhalte für: {', '.join(INCLUDE_EXTENSIONS)}")
+    if INCLUDE_FILES:
+        print(f"📄 Explizit inkludierte Dateien: {', '.join(INCLUDE_FILES)}")
 
     output = []
     output.append(f"=== PROJECT CONTEXT: {project_name} ===")
