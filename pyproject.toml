@@ -5,6 +5,9 @@ dependencies = [
     "pyperclip",
 ]
 
+[tool.setuptools]
+py-modules = ["prepro", "preprob", "preprof"]
+
 [project.scripts]
 prepro = "prepro:main"
 preprof = "preprof:main"

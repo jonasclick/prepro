@@ -1,2 +1,4 @@
 [console_scripts]
 prepro = prepro:main
+preprob = preprob:main
+preprof = preprof:main

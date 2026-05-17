@@ -2,6 +2,30 @@
 import os
 from datetime import datetime
 
+"""
+WAS TUT DIESES SKRIPT?
+---------------------------------------------
+Dieses Skript hilft dir, dein gesamtes Programmierprojekt in eine einzige Textdatei zu packen.
+Warum? Damit du diese Datei einfach kopieren und einer KI (wie ChatGPT, Claude oder Gemini)
+geben kannst. So "weiß" die KI über dein ganzes Projekt Bescheid und kann bessere Antworten geben.
+
+WIE INSTALLIERE ICH ES?
+-----------------------
+1. Öffne ein Terminal (PowerShell oder CMD).
+2. Gehe in diesen Ordner: `cd C:\pfad\zu\diesem\ordner`
+3. Installiere es mit: `pipx install . --force`
+   (Falls du kein pipx hast, installiere es erst mit `pip install pipx`)
+
+WIE NUTZE ICH ES?
+-----------------
+Schreibe einfach einen dieser Befehle in dein Terminal, wenn du in deinem Projekt-Ordner bist:
+- `prepro`  : Standard-Befehl (macht das gleiche wie preprob).
+- `preprob` : Sammelt Backend-Dateien (z.B. Java, Gradle).
+- `preprof` : Sammelt Frontend-Dateien (z.B. JavaScript, HTML, CSS).
+
+Die fertige Datei findest du danach immer in deinem "Downloads"-Ordner.
+"""
+
 # Universelles Skript für Context Stacking (Kern-Logik)
 
 def get_project_structure(start_path, ignore_dirs):
@@ -71,7 +95,7 @@ def run_prepro(include_extensions, include_files, ignore_dirs, label="Projekt"):
     print(f"📄 Datei gespeichert unter: {download_path}")
 
 def main():
-    # Forwarding to preprob as default
+    # Lokaler Import um zirkuläre Abhängigkeiten zu vermeiden
     import preprob
     preprob.main()
 
